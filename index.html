@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Battery Guardian | Smart Alarm & Monitoring System</title>
+  
+  <!-- SEO & PWA Meta Tags -->
+  <meta name="description" content="A state-of-the-art battery health manager. Protect your battery from overcharging and deep discharge with premium notifications and acoustic synth alarms." />
+  <meta name="theme-color" content="#0b0f19" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Battery Guard" />
+  
+  <link rel="apple-touch-icon" href="./icon.svg" />
+  <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+  <link rel="manifest" href="./manifest.json" />
+
+  <!-- Premium Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+
+  <!-- Background Glowing Orbs -->
+  <div class="ambient-glow orb-1"></div>
+  <div class="ambient-glow orb-2"></div>
+  <div class="ambient-glow orb-3"></div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg viewBox="0 0 512 512" width="32" height="32">
+            <use href="./icon.svg#emerald-glow"></use>
+            <path d="M256,90 L390,167 L390,323 L256,400 L122,323 L122,167 Z" fill="none" stroke="#10b981" stroke-width="20" opacity="0.8"/>
+            <rect x="216" y="200" width="80" height="120" rx="10" fill="#10b981"/>
+            <path d="M256,170 L220,250 L250,250 L240,290 L280,225 L250,225 Z" fill="#ffffff"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>BATTERY <span class="accent-text">GUARDIAN</span></h1>
+          <p class="tagline">Ecological Life-Support for Lithium Batteries</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="pwa-install-btn" class="btn btn-secondary hidden">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          Install App
+        </button>
+        <div class="status-indicator-badge disconnected" id="system-status-badge">
+          <span class="pulse-dot"></span>
+          <span class="badge-label">Guard Offline</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="dashboard-grid">
+      
+      <!-- COLUMN 1: Visualizer & Live Stats -->
+      <section class="dashboard-column primary-column">
+        
+        <!-- Live Battery Visualizer Card -->
+        <div class="dashboard-card visualizer-card">
+          <div class="card-header">
+            <h3>Energy Dynamics</h3>
+            <span class="mode-pill" id="dashboard-mode-pill">Real-time Sensor</span>
+          </div>
+          <div class="battery-canvas-container">
+            <canvas id="battery-fluid-canvas"></canvas>
+            <div class="battery-overlay-text">
+              <span id="battery-percentage-display" class="percent-value">--%</span>
+              <span id="battery-status-text" class="status-label">INITIALIZING...</span>
+            </div>
+          </div>
+          <div class="battery-health-strip">
+            <span id="charging-rate-text">Discharging at normal rate</span>
+            <span id="battery-health-rating" class="health-good">Health: Excellent</span>
+          </div>
+        </div>
+
+        <!-- Live Metrics Grid -->
+        <div class="metrics-grid">
+          <div class="metric-card glass-panel" id="metric-level">
+            <div class="metric-icon level-icon">
+              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="16" height="10" rx="2" ry="2"/><line x1="22" y1="11" x2="22" y2="13"/></svg>
+            </div>
+            <div class="metric-info">
+              <span class="metric-title">Charge Ratio</span>
+              <span class="metric-value" id="val-charge-level">--%</span>
+            </div>
+          </div>
+
+          <div class="metric-card glass-panel" id="metric-source">
+            <div class="metric-icon source-icon">
+              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            </div>
+            <div class="metric-info">
+              <span class="metric-title">Power Inflow</span>
+              <span class="metric-value" id="val-power-source">Detecting...</span>
+            </div>
+          </div>
+
+          <div class="metric-card glass-panel" id="metric-lock">
+            <div class="metric-icon lock-icon">
+              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            </div>
+            <div class="metric-info">
+              <span class="metric-title">Screen Lock</span>
+              <span class="metric-value" id="val-wake-lock">Release</span>
+            </div>
+          </div>
+
+          <div class="metric-card glass-panel" id="metric-notifications">
+            <div class="metric-icon notif-icon">
+              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+            </div>
+            <div class="metric-info">
+              <span class="metric-title">Alert Permission</span>
+              <span class="metric-value" id="val-notifications">Unauthorized</span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- COLUMN 2: Control Room -->
+      <section class="dashboard-column control-column">
+        
+        <!-- Guard Shield Toggle -->
+        <button class="shield-toggle-btn deactivated" id="shield-activation-btn">
+          <div class="shield-radial-back"></div>
+          <div class="shield-core">
+            <svg class="shield-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            <span class="shield-label">ENGAGE GUARDIAN SHIELD</span>
+            <span class="shield-sublabel" id="shield-desc-sub">Tap to initialize monitoring & sound</span>
+          </div>
+        </button>
+
+        <!-- Threshold Settings Card -->
+        <div class="dashboard-card glass-panel">
+          <div class="card-header">
+            <h3>Safety Thresholds</h3>
+            <div class="info-tooltip">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <span class="tooltip-text">Lithium-ion cells thrive best between 20% and 80% capacity to maximize their life expectancy.</span>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <!-- High threshold slider -->
+            <div class="slider-control-block">
+              <div class="control-labels">
+                <span class="control-title">High Alarm Threshold</span>
+                <span class="control-value-badge" id="val-high-limit">80%</span>
+              </div>
+              <input type="range" id="high-limit-slider" min="60" max="100" value="80" class="neon-slider slider-high" />
+              <div class="slider-desc">Trigger acoustic alert during charging to avoid high voltage stress.</div>
+            </div>
+
+            <!-- Low threshold slider -->
+            <div class="slider-control-block">
+              <div class="control-labels">
+                <span class="control-title">Low Alarm Threshold</span>
+                <span class="control-value-badge" id="val-low-limit">20%</span>
+              </div>
+              <input type="range" id="low-limit-slider" min="10" max="40" value="20" class="neon-slider slider-low" />
+              <div class="slider-desc">Trigger urgent reminder during discharging to avoid deep degradation.</div>
+            </div>
+
+            <!-- Anti-Theft Unplug Toggle -->
+            <div class="checkbox-control-block">
+              <label class="checkbox-glow-wrapper">
+                <input type="checkbox" id="unplug-alert-toggle" />
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-label" style="color: hsl(var(--accent-amber));">Early Unplugged Alarm (Anti-Theft)</span>
+              </label>
+            </div>
+            <div class="slider-desc" style="margin-top: -10px; padding-left: 26px;">Sound loud alarm if charger is disconnected before battery reaches your High Limit.</div>
+          </div>
+        </div>
+
+        <!-- Audio Configuration Card -->
+        <div class="dashboard-card glass-panel">
+          <div class="card-header">
+            <h3>Acoustic Synthesizer</h3>
+            <div class="sound-state-badge" id="alarm-state-indicator">Idle</div>
+          </div>
+
+          <div class="settings-group sound-settings">
+            <div class="flex-row">
+              <div class="select-wrapper">
+                <label for="alarm-tone-select">Synthesizer Preset</label>
+                <select id="alarm-tone-select" class="glass-select">
+                  <option value="cyber">Cyber Alert (Beep)</option>
+                  <option value="radar">Digital Radar (Sweep)</option>
+                  <option value="chime">Pulse Chime (Melodic)</option>
+                  <option value="siren">Space Siren (Modulated)</option>
+                  <option value="custom" id="custom-tone-option" class="hidden">Custom Tone (Uploaded)</option>
+                </select>
+              </div>
+
+              <button class="btn btn-secondary btn-icon-only" id="test-audio-btn" title="Test Alarm Sound">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15.536 8.464a5 5 0 010 7.072M18.364 5.636a9 9 0 010 12.728M12 18.796L7.213 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h3.213L12 5.204v13.592z"/></svg>
+                Test Sound
+              </button>
+            </div>
+
+            <!-- Custom Tone Uploader -->
+            <div class="custom-tone-uploader-wrapper">
+              <label class="btn btn-secondary upload-label-btn" for="custom-tone-file-input">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 12V3m0 9l-4-4m4 4l4-4"/></svg>
+                Load Custom Audio
+              </label>
+              <input type="file" id="custom-tone-file-input" accept="audio/*" class="hidden" />
+              <span class="custom-tone-status" id="custom-tone-name">No custom file loaded</span>
+            </div>
+
+            <div class="slider-control-block">
+              <div class="control-labels">
+                <span class="control-title">Acoustic Volume</span>
+                <span class="control-value-badge" id="val-volume">70%</span>
+              </div>
+              <div class="volume-slider-wrapper">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/></svg>
+                <input type="range" id="volume-slider" min="0" max="100" value="70" class="neon-slider" />
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15.536 8.464a5 5 0 010 7.072M12 18.796L7.213 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h3.213L12 5.204v13.592z"/></svg>
+              </div>
+            </div>
+
+            <button class="btn btn-danger hidden" id="dismiss-alarm-btn">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+              DISMISS ALARM
+            </button>
+          </div>
+        </div>
+
+        <!-- Mode & Simulator Panel -->
+        <div class="dashboard-card glass-panel simulator-card">
+          <div class="card-header">
+            <h3>Simulator Core</h3>
+            <label class="switch-glow">
+              <input type="checkbox" id="simulator-mode-toggle" />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+          
+          <div class="simulator-controls collapsed" id="simulator-controls-container">
+            <p class="sim-notice">For devices without Battery API support (e.g., iOS) or quick alarm testing, enable simulation controls below.</p>
+            
+            <div class="slider-control-block">
+              <div class="control-labels">
+                <span class="control-title">Simulated Battery Charge</span>
+                <span class="control-value-badge badge-sim" id="val-sim-percentage">50%</span>
+              </div>
+              <input type="range" id="sim-percentage-slider" min="0" max="100" value="50" class="neon-slider slider-sim" />
+            </div>
+
+            <div class="checkbox-control-block">
+              <label class="checkbox-glow-wrapper">
+                <input type="checkbox" id="sim-charging-toggle" />
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-label">Simulate Charger Plugged-In</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </main>
+
+    <!-- Console Log Panel -->
+    <section class="console-section glass-panel">
+      <div class="console-header">
+        <div class="header-left">
+          <span class="console-dot"></span>
+          <h4>Guardian Shield Security Matrix</h4>
+        </div>
+        <button id="clear-console-btn" class="btn-console-clear">Clear Matrix Logs</button>
+      </div>
+      <div class="console-screen" id="activity-log-screen">
+        <!-- Logs injected here -->
+      </div>
+    </section>
+
+    <!-- Floating Help Button & Manual -->
+    <button class="floating-help-btn" id="help-btn" title="PWA Installation & Setup Guide">
+      <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </button>
+
+    <!-- Help Modal Dialog -->
+    <dialog class="help-dialog glass-modal" id="help-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Battery Guardian Guard Manual</h2>
+          <button class="modal-close-btn" id="close-modal-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <h3>🔋 Understanding Optimal Battery Ranges</h3>
+          <p>Lithium-ion batteries experience standard electrochemical stress at high states of charge (above 80%) and low states of charge (below 20%). By keeping your battery within the <strong>20% to 80% sweet spot</strong>, you can extend your device's overall battery life span by up to 2-3x!</p>
+          
+          <h3>📱 Progressive Web App (PWA) Background Playback</h3>
+          <p>Browsers restrict background processing strictly. To ensure continuous monitoring, follow these steps:</p>
+          
+          <div class="manual-tabs">
+            <div class="tab-box">
+              <h4>🤖 For Android Users (Chrome / Edge)</h4>
+              <ul>
+                <li>Press the <strong>Install App</strong> button in the header or selection drawer to install it to your home screen.</li>
+                <li>Tap <strong>Engage Guardian Shield</strong> to active audio and notification authorization.</li>
+                <li>Disable "Battery Optimization" or "Background App Restrictions" in your phone's Settings specifically for Battery Guardian to prevent Android from sleeping the app.</li>
+                <li>Keep the screen awake using the <strong>Wake Lock</strong> switch inside the dashboard!</li>
+              </ul>
+            </div>
+            <div class="tab-box">
+              <h4>🍎 For iOS Users (Safari)</h4>
+              <ul>
+                <li>Tap the <strong>Share</strong> button in Safari (bottom navigation bar).</li>
+                <li>Select <strong>Add to Home Screen</strong>.</li>
+                <li>Open the installed "Battery Guard" app from your home screen.</li>
+                <li>Tap <strong>Engage Guardian Shield</strong> once to unlock Apple Web Audio playback permissions.</li>
+                <li><strong>Note:</strong> iOS doesn't support the Battery API. Use the **Simulator mode** within the app to run simulated warnings, or pin the app open with Wake Lock active during overnight charging!</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="alert-box-warning">
+            <strong>⚠️ Crucial Requirement:</strong> Audio alarms cannot trigger autonomously on first load. You MUST click <strong>"Engage Guardian Shield"</strong> to grant audio playback authorization.
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>&copy; 2026 Battery Guardian PWA System. Synthesized programmatically for maximum battery health conservation.</p>
+    </footer>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
