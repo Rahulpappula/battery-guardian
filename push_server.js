@@ -3,20 +3,28 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const webPush = require('web-push');
 const schedule = require('node-schedule');
+require('dotenv').config();
 
-const app = express();
-app.use(bodyParser.json());
-
-// Load VAPID keys (replace with real keys generated via `npx web-push generate-vapid-keys`)
+// Load VAPID keys from .env
 const vapidKeys = {
-  publicKey: 'YOUR_PUBLIC_VAPID_KEY',
-  privateKey: 'YOUR_PRIVATE_VAPID_KEY'
+  publicKey: process.env.VAPID_PUBLIC_KEY,
+  privateKey: process.env.VAPID_PRIVATE_KEY
 };
+
+// Configure web-push with VAPID details
 webPush.setVapidDetails(
   'mailto:example@yourdomain.com',
   vapidKeys.publicKey,
   vapidKeys.privateKey
 );
+
+const app = express();
+app.use(bodyParser.json());
+
+// Expose public VAPID key so the client can subscribe
+app.get('/vapidPublicKey', (req, res) => {
+  res.json({ publicKey: vapidKeys.publicKey });
+});
 
 // In‑memory store for client subscriptions
 const subscriptions = [];
@@ -54,7 +62,7 @@ app.post('/schedule', (req, res) => {
   res.json({ status: 'scheduled' });
 });
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Push server listening on http://localhost:${PORT}`);
 });

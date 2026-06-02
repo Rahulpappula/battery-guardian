@@ -1,0 +1,5 @@
+.env
+batteryguardian.zip
+capacitor.config.json
+node_modules/
+dist/

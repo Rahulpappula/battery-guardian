@@ -9,6 +9,7 @@
   },
   "background_color": "#090d16",
   "theme_color": "#10b981",
+  "gcm_sender_id": "103953800507",
   "orientation": "portrait-primary",
   "icons": [
     {

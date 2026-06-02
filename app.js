@@ -106,7 +106,7 @@ if ('serviceWorker' in navigator) {
       }
       // Subscribe to push notifications if supported
       if ('PushManager' in window && reg) {
-        const publicVapidKey = 'YOUR_PUBLIC_VAPID_KEY'; // Replace with your VAPID public key
+        const publicVapidKey = 'BKX2n1Nu67yX5EbjHTSwlGOy49xo0aJajRHUzbwIg4ztr4WH7VD02_K_TV9STqBRK4SnIoqB0cG_-Q0so9hFz78'; // Generated VAPID public key
         const convertedKey = urlBase64ToUint8Array(publicVapidKey);
         const subscription = await reg.pushManager.subscribe({
           userVisibleOnly: true,
