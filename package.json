@@ -1,0 +1,14 @@
+{
+  "name": "battery-guardian-push",
+  "version": "1.0.0",
+  "description": "Simple push notification server for Battery Guardian PWA",
+  "main": "push_server.js",
+  "scripts": {
+    "start": "node push_server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "web-push": "^3.5.0",
+    "cors": "^2.8.5"
+  }
+}

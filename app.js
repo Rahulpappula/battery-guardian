@@ -29,7 +29,8 @@ const state = {
   },
 
   // Wake Lock object
-  wakeLock: null
+  unplugAlertActive: true, // Early unplug alert active by default
+
 };
 
 // UI Element Selectors
@@ -95,10 +96,55 @@ const el = {
 // SERVICE WORKER REGISTRATION (Offline Capability)
 // -------------------------------------------------------------
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then((reg) => console.log('[Service Worker] Registered successfully', reg.scope))
-      .catch((err) => console.error('[Service Worker] Registration failed', err));
+  window.addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register('./sw.js');
+      console.log('[Service Worker] Registered successfully', reg.scope);
+      // Request Notification permission
+      if (Notification.permission !== 'granted') {
+        await Notification.requestPermission();
+      }
+      // Subscribe to push notifications if supported
+      if ('PushManager' in window && reg) {
+        const publicVapidKey = 'YOUR_PUBLIC_VAPID_KEY'; // Replace with your VAPID public key
+        const convertedKey = urlBase64ToUint8Array(publicVapidKey);
+        const subscription = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: convertedKey
+        });
+        console.log('Push subscription:', JSON.stringify(subscription));
+        // Send subscription to local push server
+        fetch('http://localhost:3000/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(subscription)
+        }).catch(err => console.error('Push subscription failed', err));
+      }
+    } catch (err) {
+      console.error('[Service Worker] Registration failed', err);
+    }
+  });
+}
+
+// Utility to convert base64 VAPID key
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
+// Listen for push messages from service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', event => {
+    if (event.data && event.data.action === 'playAlarm') {
+      AudioSynth.play();
+      NotificationEngine.dispatch('Battery Guardian Alarm', 'Alarm triggered');
+    }
   });
 }
 
@@ -792,6 +838,8 @@ function ringAlarm() {
   
   // Play the programmatic synthesizer tone loop
   AudioSynth.play();
+  // Show desktop notification
+  NotificationEngine.dispatch('Battery Guardian Alarm', 'Alarm triggered');
 }
 
 function silenceAlarm(userDismissed = false) {

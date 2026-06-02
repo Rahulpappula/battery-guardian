@@ -61,3 +61,40 @@ self.addEventListener('fetch', (e) => {
     })
   );
 });
+// Push Notification handling
+self.addEventListener('push', (event) => {
+  const data = event.data ? event.data.json() : {};
+  const title = data.title || 'Battery Guardian Alarm';
+  const options = {
+    body: data.body || 'Alarm triggered',
+    icon: './icon.svg',
+    tag: 'battery-alarm',
+    renotify: true,
+    data: data
+  };
+  event.waitUntil(
+    self.registration.showNotification(title, options).then(() => {
+      // Notify any open client pages to play sound
+      return self.clients.matchAll({ includeUncontrolled: true, type: 'window' }).then((clientList) => {
+        if (clientList && clientList.length) {
+          clientList.forEach((client) => {
+            client.postMessage({ action: 'playAlarm', tone: data.tone });
+          });
+        }
+      });
+    })
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window' }).then((clientList) => {
+      if (clientList.length > 0) {
+        const client = clientList[0];
+        return client.focus();
+      }
+      return self.clients.openWindow('/');
+    })
+  );
+});

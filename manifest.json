@@ -4,6 +4,9 @@
   "description": "Smart battery monitoring dashboard with premium customizable alarms, canvas animations, and notifications.",
   "start_url": "./index.html",
   "display": "standalone",
+  "background": {
+    "service_worker": "sw.js"
+  },
   "background_color": "#090d16",
   "theme_color": "#10b981",
   "orientation": "portrait-primary",
